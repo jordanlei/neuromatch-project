@@ -10,14 +10,9 @@ def dummy_conf(features = ["prev_conf",  "perf"], samples = 1000):
     """
 
     # Generate specified features
-    if "prev_conf" in features:
-        prev_conf = np.random.random((samples, 1))
-
-    if "perf" in features:
-        perf = np.random.random((samples, 1))
-    
-    if "exp_perf" in features:
-        exp_perf = prev_conf
+    prev_conf = np.random.random((samples, 1))
+    perf = np.random.random((samples, 1))
+    exp_perf = prev_conf
 
     surprise = perf - exp_perf
     
