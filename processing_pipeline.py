@@ -30,21 +30,18 @@ def check_lengths(dfs):
 
 # Define trial_type_func, a function to determine trial_type from session's contrast columns
 def trial_type_func (row):
-    if row['contrast_left'] == 0 and row['contrast_right'] != 0:
-        trial_type = 'A'
-        return trial_type
-    elif row['contrast_left'] != 0 and row['contrast_right'] == 0:
-        trial_type = 'B'
-        return trial_type
-    elif row['contrast_right'] or row['contrast_left'] != 0 and row['contrast_right'] > row['contrast_left']:
-        trial_type = 'C'
-        return trial_type
-    elif row['contrast_right'] or row['contrast_left'] != 0 and row['contrast_right'] < row['contrast_left']:
-        trial_type = 'D'
-        return trial_type
-    elif row['contrast_left'] == 0 and row['contrast_right'] == 0:
-        trial_type = 'E'
-        return trial_type
+    if row['contrast_left'] == 0 and row['contrast_right'] == 0:
+        return "E"
+    elif row['contrast_left'] == 0: #else if contrast left == 0 only
+        return "A"
+    elif row['contrast_right'] == 0: #else if contrast right == 0 only
+        return "B"
+    elif row['contrast_right'] > row['contrast_left']:
+        return "C"
+    elif row['contrast_right'] < row['contrast_left']:
+        return "D"
+    elif row["contrast_right"] == row["contrast_left"]:
+        return "F"
     else:
         return 'NaN'
 
