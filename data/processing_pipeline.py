@@ -142,6 +142,7 @@ def latency_func(row):
     
 ######################################################################################################################
 def preprocess(alldat, session):
+    print("Session No: %s"%(session))
     dat = alldat[session]
     empty = np.empty([len(dat['gocue']), 1])
     for i in range(len(empty)):
@@ -337,15 +338,18 @@ def preprocess(alldat, session):
 
     return trials_s6
 
+def main(): 
+    download()
+    alldat = load()
+    session = 12
 
-download()
-alldat = load()
-session = 12
+    dfs = df.concat([preprocess(alldat, i) for i in range(39)])
+    train, test = train_test_split(dfs)
+    print(train.shape)
+    print(set(train["session"]))
 
-dfs = df.concat([preprocess(alldat, i) for i in range(39)])
-train, test = train_test_split(dfs)
-print(train.shape)
-print(set(train["session"]))
+    print(test.shape)
+    print(set(test["session"]))
 
-print(test.shape)
-print(set(test["session"]))
+if __name__ == "__main__":
+    main()
