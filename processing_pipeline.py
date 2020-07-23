@@ -28,7 +28,6 @@ def check_lengths(dfs):
     else:
         raise Exception('Dataframes are not equal lengths!')
 
-
 # Define trial_type_func, a function to determine trial_type from session's contrast columns
 def trial_type_func (row):
     if row['contrast_left'] == 0 and row['contrast_right'] != 0:
@@ -138,8 +137,9 @@ def latency_func(row):
     latency = row['resp_time'] - row['gocue_onset']
     return latency
    
-def preprocess(alldat, session):
-    print("Session No: %s"%(session))
+def preprocess(alldat, session, verbose = False):
+    if verbose:
+        print("Session No: %s"%(session))
     dat = alldat[session]
     empty = np.empty([len(dat['gocue']), 1])
     for i in range(len(empty)):
