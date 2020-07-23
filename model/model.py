@@ -24,12 +24,12 @@ def dummy_conf(features = ["conf", "prev_conf",  "perf"], samples = 1000):
     return df
 
 
-def plots(df): 
+def plots(df, var = "conf"): 
     for feature in df.columns: 
         plt.figure()
-        plt.scatter(df[feature], df["conf"])  
+        plt.scatter(df[feature], df[var])  
         plt.xlabel(feature)
-        plt.ylabel("conf") 
+        plt.ylabel(var) 
 
 from sklearn.linear_model import LinearRegression
 def get_model(x, y, version = "linear"):

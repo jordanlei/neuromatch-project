@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy as sp
 import pandas as pd
-from get_data import *
+from data.get_data import *
 
 
 def train_test_split(df, test_set=[1, 4, 8, 12, 19, 22, 25, 30, 35]):
@@ -13,8 +13,8 @@ def train_test_split(df, test_set=[1, 4, 8, 12, 19, 22, 25, 30, 35]):
     test_set: list, list of sessions to exclude from analysis
     returns: train_df,  test_df
     """
-    train = df[df['session'].apply(lambda x: x not in test_set)]
-    test = df[df['session'].apply(lambda x: x in test_set)]
+    train = df[df['session'].apply(lambda x: int(float(x)) not in test_set)]
+    test = df[df['session'].apply(lambda x: int(float(x)) in test_set)]
     return train, test
 
 def check_lengths(dfs):
@@ -137,10 +137,7 @@ def trial_contrast_abs_diff (row):
 def latency_func(row):
     latency = row['resp_time'] - row['gocue_onset']
     return latency
-
-
-    
-######################################################################################################################
+   
 def preprocess(alldat, session):
     print("Session No: %s"%(session))
     dat = alldat[session]
@@ -149,7 +146,7 @@ def preprocess(alldat, session):
         empty[i] = session
 
     session_df = pd.DataFrame(empty)
-    session_df = session_df.rename(columns={0: 'session'}).astype(str)
+    session_df = session_df.rename(columns={0: 'session'}).astype(int)
 
     # Create 1 column df of len (quantity of trials in that session) filled with session's mouse name
     empty_b = np.empty([len(dat['gocue']), 1]).astype(str)
@@ -226,7 +223,7 @@ def preprocess(alldat, session):
 
     # Combine all new dfs into one (s2 = Step 2)
     trials_s2= pd.concat([trials_s2_a, prev_acc, pres_acc], axis = 1)
-
+    
 
     ######################################################################################################################
     # Step 3: Assessing contrast differences and difficulty (contrast_diff, abs_contrast_diff, prev_difficulty, pres_difficulty)
@@ -269,7 +266,7 @@ def preprocess(alldat, session):
     prev_difficulty = prev_difficulty.rename(columns={0: 'prev_difficulty'})
 
     # Combine all dfs into one for a final Step 3 (s3) DataFrame
-    trials_s3 = pd.concat([trials_s2, trials_s3_b, prev_difficulty], axis = 1)
+    trials_s3 = pd.concat([trials_s3_b, prev_difficulty], axis = 1)
 
 
 
@@ -337,16 +334,21 @@ def preprocess(alldat, session):
 
     return trials_s6
 
+######################################################################################################################
+
+
 def pickle_data():
     alldat = load()
     dfs = pd.concat([preprocess(alldat, i) for i in range(39)])
     with open('processed_data.pickle', 'wb') as f:
         pickle.dump( dfs, f)
-        print('Dataframe Dumped')
+        print('Processed Data Dumped')
 
 def load_processed_data():
-    with open('')
-    pass
+    with open('processed_data.pickle', 'rb') as f:
+        dfs = pickle.load(f)
+        print("Processed Data loaded")
+        return dfs
 
 def main(): 
     download()
