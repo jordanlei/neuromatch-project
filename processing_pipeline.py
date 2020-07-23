@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy as sp
 import pandas as pd
+import pickle
 from data.get_data import *
 
 
