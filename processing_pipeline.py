@@ -105,7 +105,7 @@ def trial_ideal_func (row):
         correct_resp = 0.
         return correct_resp
     else:
-        return 'error in trial_acc_func'
+        return np.nan
 
 # Define trial_acc_func, a function to determine if mouse was right(1) or wrong(0) on the present trial
 def trial_acc_func (row):
@@ -171,9 +171,8 @@ def preprocess(alldat, session, verbose = False):
     trial_type = pd.DataFrame(trial_type)
     trial_type = trial_type.rename(columns={0: 'trial_type'})
 
-
-    future_trial_type = np.concatenate([trial_type.to_numpy().flatten()[1:], [np.nan]])
-    future_trial_type = pd.DataFrame(trial_type, columns = ["future_trial_type"])
+    future_trial_type = np.concatenate([trial_type.to_numpy().flatten()[1:], [None]])
+    future_trial_type = pd.DataFrame(future_trial_type, columns = ["future_trial_type"])
 
 
     
