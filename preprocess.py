@@ -66,7 +66,6 @@ def preprocess(alldat, verbose = False):
 
     # Loop to fill all lists with data from Steinmetz dataset
     for dat in alldat:
-        s += 1
         num_trials = len(dat["gocue"])
         session = np.concatenate([session, [s]*num_trials])
         mouse_name = np.concatenate([mouse_name, [dat["mouse_name"]]*num_trials])
@@ -88,8 +87,9 @@ def preprocess(alldat, verbose = False):
         wheel_acceleration = wheel_acceleration + wheel_acc.tolist()
         feedback_onset = np.concatenate([feedback_onset, dat["feedback_time"].flatten()])
         feedback_type = np.concatenate([feedback_type, dat["feedback_type"].flatten()])
+        s += 1
 
-    go_trial = contrast_left * contrast_right != 0
+    go_trial = (contrast_left + contrast_right) != 0
     session_type = ["test" if x in [1, 4, 8, 12, 19, 22, 25, 30, 35] else "train" for x in session]
     latency = response_time - gocue
     contrast_diff = contrast_left - contrast_right
@@ -122,21 +122,51 @@ def preprocess(alldat, verbose = False):
         'past_latency': pastify(latency), 
         'past_difficulty': pastify(pres_difficulty),
 
-        'fut_go_trial': futurify(go_trial),
+        'fut_go_trial': futurify(go_trial).astype(bool),
         'fut_acc': futurify(pres_acc),
         'fut_latency': futurify(latency),
         'fut_difficulty': futurify(pres_difficulty),
     }
 
-    for i in my_dict.keys():
-        print(i) 
-        print(len(my_dict[i]))
+    dict_def = {
+        'session': "session number, indexed 0 - 38", 
+        'session_type': "session type, train / test",
+        'mouse_name': "name of the mouse", 
+        'trial_number': "trial number, indexed 0 to num_trials",
+        'go_trial': "true if go_trial, false if no-go trial",
+
+        'gocue': "time of go cue, in ms",
+        'response_time': "time of response, in ms",
+        'latency': "response time - go cue, in ms",
+        'mouse_resp': "mouse response for a given trial",
+        'wheel_velocity': "velocity of the wheel",
+        'wheel_acceleration': "acceleration of the wheel (first derivative of velocity)",
+        'feedback_onset': "feedback onset (reward or punishment)",
+        'feedback_type': "-1 if punish, 0 if none, 1 if reward",
+        'contrast_left': "left contrast",
+        'contrast_right': "right contrast",
+        'contrast_diff': "contrast left - contrast right",
+        'pres_difficulty': "1 - absolute value(contrast_diff)",
+        'pres_acc': "present accuracy, based on feedback",
+
+        'response_time_diff': "first derivative of response time",
+
+        'past_acc': "past accuracy, based on feedback",
+        'past_latency': "past latency, in ms", 
+        'past_difficulty': "past difficulty", 
+
+        'fut_go_trial': "future go_trial, whether true or false",
+        'fut_acc': "future accuracy, based on feedback",
+        'fut_latency': "future latency, in ms",
+        'fut_difficulty': "future difficulty",
+    }
 
     df = pd.DataFrame(my_dict)
 
     if verbose: 
         for col in df.columns:
-            print("column %s dtype: "%(col, df[col].dtype))
+            prcol = col + " "*100
+            print("[%s]   \t%s\t%s"%(df[col].dtype, prcol[:20], dict_def[col]))
 
     return df
 ######################################################################################################################
