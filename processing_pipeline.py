@@ -221,7 +221,6 @@ def preprocess(alldat, session, verbose = False):
     # Combine all new dfs into one (s2 = Step 2)
     trials_s2= pd.concat([trials_s2_a, future_acc, pres_acc], axis = 1)
     
-
     ######################################################################################################################
     # Step 3: Assessing contrast differences and difficulty (contrast_diff, abs_contrast_diff, prev_difficulty, pres_difficulty)
     # Apply trial_contrast_diff to determine contrast difference on every trial (contrast_diff)
@@ -234,18 +233,13 @@ def preprocess(alldat, session, verbose = False):
     abs_contrast_diff = pd.DataFrame(abs_contrast_diff)
     abs_contrast_diff = abs_contrast_diff.rename(columns={0: 'abs_contrast_diff'})
 
-
     # Combine dataframes up to this point into one for further assessment
     trials_s3_a = pd.concat([trials_s2, contrast_diff, abs_contrast_diff], axis = 1)
-
-
-
 
     # Apply trial_difficulty to append a column holding present/current trial difficulty (pres_difficulty)
     pres_difficulty = trials_s3_a.apply(lambda row: trial_difficulty(row), axis=1)
     pres_difficulty = pd.DataFrame(pres_difficulty)
     pres_difficulty = pres_difficulty.rename(columns={0: 'pres_difficulty'})
-
 
     # Combine dataframes up to this point again for further assessment
     trials_s3_b = pd.concat([trials_s3_a, pres_difficulty], axis = 1)

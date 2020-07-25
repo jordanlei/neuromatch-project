@@ -67,11 +67,14 @@ def preprocess(alldat, verbose = False):
     # Loop to fill all lists with data from Steinmetz dataset
     for dat in alldat:
         s += 1
+        print(s)
+
+        
         for t in range(len(dat.get('gocue'))):      #just because the length of this field = number of trials for a given session
             # session #
             session.append(s) #session number
 
-            if session[t] == 1 or session[t] == 4 or session[t] == 8 or session[t] == 12 or session[t] == 19 or session[t] == 22 or session[t] == 25 or session[t] == 30 or session[t] == 35:
+            if s == 1 or s== 4 or s == 8 or s == 12 or s == 19 or s == 22 or s== 25 or s == 30 or s == 35:
                 session_type.append('test')
             else: 
                 session_type.append('train') 
@@ -132,7 +135,7 @@ def preprocess(alldat, verbose = False):
             mouse_resp.append(dat.get('response')[t])
             
             # velocity
-            wheel_velocity.append(dat['wheel'][0][0] * .135) 
+            wheel_velocity.append(dat['wheel'][0][t] * .135) 
             
             # wheel acceleration
             wheel_acceleration.append(np.diff(wheel_velocity[t]/10))
@@ -141,7 +144,7 @@ def preprocess(alldat, verbose = False):
             feedback_onset.append((dat.get('feedback_time')[t][0]*1000))
             
             # feedback type 
-            feedback_type.append(dat.get('feedback_type')[t]) #feedback type: positive (+1) means reward, negative (-1) means white noise burst 
+            feedback_type.append(int(dat.get('feedback_type')[t])) #feedback type: positive (+1) means reward, negative (-1) means white noise burst 
         
             # stimulus contrasts and differences between them
             contrast_left.append(dat.get('contrast_left')[t])
@@ -159,13 +162,15 @@ def preprocess(alldat, verbose = False):
                 pres_difficulty.append(np.nan)
                 
             # mouse's accuracy on present trial
-            if feedback_type[t] == 1: 
+            if dat.get("feedback_type")[t] == 1: 
                 mouse_acc_binary = 1
                 pres_acc.append(mouse_acc_binary)
             else:
                 mouse_acc_binary = 0
                 pres_acc.append(mouse_acc_binary)
 
+
+    print(session)
     my_dict = {'session': session, 
         'session_type': session_type,
         'mouse_name': mouse_name, 
