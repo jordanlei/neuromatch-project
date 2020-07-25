@@ -105,7 +105,7 @@ def trial_ideal_func (row):
         correct_resp = 0.
         return correct_resp
     else:
-        return 'error in trial_acc_func'
+        return np.nan
 
 # Define trial_acc_func, a function to determine if mouse was right(1) or wrong(0) on the present trial
 def trial_acc_func (row):
@@ -171,6 +171,12 @@ def preprocess(alldat, session, verbose = False):
     trial_type = pd.DataFrame(trial_type)
     trial_type = trial_type.rename(columns={0: 'trial_type'})
 
+    future_trial_type = np.concatenate([trial_type.to_numpy().flatten()[1:], [None]])
+    future_trial_type = pd.DataFrame(future_trial_type, columns = ["future_trial_type"])
+
+
+    
+
     # Apply stim_loc_func to session's contrast columns to determine stimulus location for the trial (row or index pos)
     stim_loc = contrast_trials.apply(lambda row: stim_loc_func(row), axis=1)
     stim_loc = pd.DataFrame(stim_loc)
@@ -183,7 +189,7 @@ def preprocess(alldat, session, verbose = False):
 
     # Concat created dfs into one dataframe (s1 = Step 1)
     # trials_s1 = every row is a trial and this has every column associated with Step 1 (trial type and stim information)
-    trials_s1 = pd.concat([foundation, trial_type, contrast_trials, stim_loc, winning_stim], axis = 1)
+    trials_s1 = pd.concat([foundation, trial_type, future_trial_type, contrast_trials, stim_loc, winning_stim], axis = 1)
 
     ######################################################################################################################
     # Step 2: Extracting accuracy information for every trial in the session
@@ -208,19 +214,12 @@ def preprocess(alldat, session, verbose = False):
     # Combine all dfs so far into one df for further investigation
     trials_s2_b= pd.concat([trials_s2_a, pres_acc], axis = 1)
 
-    # Previous accuracy (acc_prev)
-    # Create an empty array to assign previous accuracy values to
-    empty = np.empty([len(dat['response']), 1])
-    empty[0] = 'NaN' #ignore first index because there is no previous trial to this index
-
-    for i in range(len(empty)-1):
-        empty[i+1] = trials_s2_b['pres_acc'][i]
-
-    prev_acc = pd.DataFrame(empty)
-    prev_acc = prev_acc.rename(columns={0: 'prev_acc'})
+    # Future accuracy (acc_prev)
+    future_acc = np.concatenate([pres_acc.to_numpy().flatten()[1:], [np.nan]])
+    future_acc = pd.DataFrame(future_acc, columns = ["future_acc"])
 
     # Combine all new dfs into one (s2 = Step 2)
-    trials_s2= pd.concat([trials_s2_a, prev_acc, pres_acc], axis = 1)
+    trials_s2= pd.concat([trials_s2_a, future_acc, pres_acc], axis = 1)
     
 
     ######################################################################################################################
@@ -252,21 +251,11 @@ def preprocess(alldat, session, verbose = False):
     trials_s3_b = pd.concat([trials_s3_a, pres_difficulty], axis = 1)
 
 
-    # Determine the difficulty from previous trial for every row (prev_difficulty)
-    # Create an empty array to fill in with previous difficulty scores for every row (trial)
-    empty = np.empty([len(dat['response']), 1])
-    empty[0] = 'NaN' #ignore first index because there is no previous trial to this index
-
-    for i in range(len(empty)-1):
-        empty[i+1] = trials_s3_b['pres_difficulty'][i]
-
-    prev_difficulty = pd.DataFrame(empty)
-    prev_difficulty = prev_difficulty.rename(columns={0: 'prev_difficulty'})
+    future_difficulty = np.concatenate([pres_difficulty.to_numpy().flatten()[1:], [np.nan]])
+    future_difficulty = pd.DataFrame(future_difficulty, columns = ["future_difficulty"])
 
     # Combine all dfs into one for a final Step 3 (s3) DataFrame
-    trials_s3 = pd.concat([trials_s3_b, prev_difficulty], axis = 1)
-
-
+    trials_s3 = pd.concat([trials_s3_b, future_difficulty], axis = 1)
 
 
     ######################################################################################################################
@@ -281,8 +270,12 @@ def preprocess(alldat, session, verbose = False):
     resp_time = pd.DataFrame(dat['response_time'])
     resp_time = resp_time.rename(columns={0: 'resp_time'})
 
+    resp_time_future = np.concatenate([dat["response_time"].flatten()[1:], [np.nan]])
+    resp_time_future = pd.DataFrame(resp_time_future, columns = ["future_resp_time"])
+
+
     # Combine dataframes into one cumulative df adding s4 (step 4)
-    trials_s4_a = pd.concat([trials_s3, go_onset, resp_time], axis = 1)
+    trials_s4_a = pd.concat([trials_s3, go_onset, resp_time, resp_time_future], axis = 1)
 
     # Latency calculation
 
@@ -292,8 +285,11 @@ def preprocess(alldat, session, verbose = False):
     latency = pd.DataFrame(latency)
     latency = latency.rename(columns={0: 'latency'})
 
+    future_latency = np.concatenate([latency.to_numpy().flatten()[1:], [np.nan]])
+    future_latency = pd.DataFrame(future_latency, columns = ["future_latency"])
+
     # Combine dataframes into one cumulative df adding s4 (step 4)
-    trials_s4 = pd.concat([trials_s4_a, latency], axis = 1)
+    trials_s4 = pd.concat([trials_s4_a, latency, future_latency], axis = 1)
 
 
     trials_s4.head()
