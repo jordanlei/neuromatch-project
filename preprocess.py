@@ -169,6 +169,41 @@ def preprocess(alldat, verbose = False):
             print("[%s]   \t%s\t%s"%(df[col].dtype, prcol[:20], dict_def[col]))
 
     return df
+
+#plotting violinplot / scatter function, supports filtering
+def plots(df, y = "fut_latency", features = ["pres_acc", "fut_latency"], filter_: dict= None, hue = None, title = None):
+    if filter_ is not None: 
+        for key in filter_.keys(): 
+            df = df[df[key] == filter_[key]]
+
+    for feature in features:
+        if df[feature].dtype in [float, int]:
+            if len(list(set(df[feature].dropna()))) < 10:
+                plt.figure()
+                sns.violinplot(df[feature], df[y])  
+                plt.xlabel(feature)
+                plt.ylabel(y)
+            else: 
+                plt.figure()
+                sns.scatterplot(feature, y, data = df, hue=hue, alpha= 0.7)
+                plt.xlabel(feature)
+                plt.ylabel(y)
+            plt.title(title)
+
+#plotting histogram function, supports filtering          
+def histograms(df, x, by: str, filter_:dict = None, title = None):
+    if filter_ is not None: 
+        for key in filter_.keys(): 
+            df = df[df[key] == filter_[key]]
+    
+    plt.figure()
+    for val in set(df[by]):
+        plt.hist(x = x, data = df[df[by]==val], density = True, alpha = 0.7, label = "%s: %s"%(by, val), bins = 15)
+        plt.xlabel(x)
+    
+    plt.legend()
+    plt.title(title)
+
 ######################################################################################################################
 
 
