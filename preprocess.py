@@ -43,6 +43,90 @@ def indexby(x, var = "gocue", version = "wheel_velocity", left = 1, right = 3):
     return x[version][index - left: index + right]
 
 
+def spike_preprocess(alldat):
+    session_df = []
+    trial_df = []
+
+    spikes_df = []
+    regions_df = []
+    response_time_df = []
+    go_cue_df = []
+    feedback_time_df = []
+    feedback_type_df = []
+    contrast_left_df = []
+    contrast_right_df = []
+
+    mouse_name_df = []
+
+
+    for i, dat in enumerate(alldat):
+        print("session", i)
+        trials = len(dat["gocue"])
+        num_neurons = len(dat["spks"])
+        spikes = np.concatenate([dat["spks"][:, i] for i in range(trials)])
+        regions = np.concatenate([dat["brain_area"] for i in range(trials)]).tolist()
+        response_time = np.repeat(dat["response_time"], num_neurons).tolist()
+
+        gocue = np.repeat(dat["gocue"], num_neurons).tolist()
+        feedback_time = np.repeat(dat["feedback_time"], num_neurons).tolist()
+        feedback_type = np.repeat(dat["feedback_type"], num_neurons).tolist()
+        contrast_left = np.repeat(dat["contrast_left"], num_neurons).tolist()
+        contrast_right = np.repeat(dat["contrast_right"], num_neurons).tolist()
+        
+        trial = np.repeat(np.arange(trials), num_neurons).tolist()
+
+        session_df += [i]*(trials * num_neurons)
+        trial_df += trial
+        mouse_name_df += [dat["mouse_name"]] * (trials * num_neurons)
+        spikes_df += [spikes]
+        regions_df += regions
+        response_time_df += response_time
+        go_cue_df += gocue
+        feedback_time_df += feedback_time
+        feedback_type_df += feedback_type
+        contrast_left_df += contrast_left
+        contrast_right_df += contrast_right
+
+    mydict = {
+    "session": session_df,
+    "trial": trial_df,
+    "region": regions_df,
+    "response_time": response_time_df,
+    "go_cue": go_cue_df,
+    "feedback_time": feedback_time_df,
+    "feedback_type": feedback_type_df,
+    "contrast_left": contrast_left_df, 
+    "contrast_right": contrast_right_df, 
+    "mouse_name": mouse_name_df
+    }
+
+    df1 = pd.DataFrame(mydict)
+    df2 = pd.DataFrame(np.concatenate(spikes_df, axis = 0))
+    print("joining dataframes (may take up to a minute)...")
+    df = df2.join(df1)
+    
+    regions = ["vis_ctx", "thal", "hipp", "other_ctx", "midbrain", "basal_ganglia", "cortical_subplate", "other"]
+    brain_groups = [["VISa", "VISam", "VISl", "VISp", "VISpm", "VISrl"], # visual cortex
+                    ["CL", "LD", "LGd", "LH", "LP", "MD", "MG", "PO", "POL", "PT", "RT", "SPF", "TH", "VAL", "VPL", "VPM"], # thalamus
+                    ["CA", "CA1", "CA2", "CA3", "DG", "SUB", "POST"], # hippocampal
+                    ["ACA", "AUD", "COA", "DP", "ILA", "MOp", "MOs", "OLF", "ORB", "ORBm", "PIR", "PL", "SSp", "SSs", "RSP"," TT"], # non-visual cortex
+                    ["APN", "IC", "MB", "MRN", "NB", "PAG", "RN", "SCs", "SCm", "SCig", "SCsg", "ZI"], # midbrain
+                    ["ACB", "CP", "GPe", "LS", "LSc", "LSr", "MS", "OT", "SNr", "SI"], # basal ganglia 
+                    ["BLA", "BMA", "EP", "EPd", "MEA"], # cortical subplate
+                    [np.nan, ""]
+                    ]
+    
+    region_dict = {}
+    for i in range(len(regions)):
+        region = regions[i]
+        groups = brain_groups[i]
+        for group in groups:
+            region_dict[group] = region
+    df["area"] = df["region"].apply(lambda x: region_dict[x] if x in region_dict.keys() else "other")
+    print("done")
+
+    return df
+
 def preprocess(alldat, verbose = False):
     s = 0
     test_sessions = [1, 4, 8, 12, 19, 22, 25, 30, 35]
