@@ -116,7 +116,7 @@ def preprocess(alldat, verbose = False):
         'pres_difficulty': pres_difficulty,
         'pres_acc': pres_acc,
 
-        'response_time_diff': response_time_diff,
+        'delta_response_time': response_time_diff,
 
         'past_acc': pastify(pres_acc), 
         'past_latency': pastify(latency), 
@@ -149,7 +149,7 @@ def preprocess(alldat, verbose = False):
         'pres_difficulty': "1 - absolute value(contrast_diff)",
         'pres_acc': "present accuracy, based on feedback",
 
-        'response_time_diff': "first derivative of response time",
+        'delta_response_time': "first derivative of response time",
 
         'past_acc': "past accuracy, based on feedback",
         'past_latency': "past latency, in ms", 
