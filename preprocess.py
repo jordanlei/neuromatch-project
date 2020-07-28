@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import scipy as sp
 import pandas as pd
 import pickle
+import seaborn as sns
 from data.get_data import *
 
 
@@ -20,7 +21,7 @@ def train_test_split(df, test_set=[1, 4, 8, 12, 19, 22, 25, 30, 35]):
 
 def check_lengths(dfs):
     """Check the lenghts of the dataframes are equal
-    
+
     dfs: list of pd.DataFrames
     """
     lengths = [len(df)for df in dfs]
@@ -29,7 +30,7 @@ def check_lengths(dfs):
     else:
         raise Exception('Dataframes are not equal lengths!')
 
-def futurify(arr): 
+def futurify(arr):
     arr = np.array(arr)
     return np.concatenate([arr.flatten()[1:], [np.nan]])
 
@@ -41,28 +42,28 @@ def preprocess(alldat, verbose = False):
     s = 0
     test_sessions = [1, 4, 8, 12, 19, 22, 25, 30, 35]
 
-    # Initialize empty list 
-    session = np.array([]) 
-    session_type = np.array([]) 
-    mouse_name = np.array([])   
-    trial_number = np.array([]) 
+    # Initialize empty list
+    session = np.array([])
+    session_type = np.array([])
+    mouse_name = np.array([])
+    trial_number = np.array([])
     go_trial = np.array([])   #either TRUE (Go trial) or FALSE(= NoGo trial)
-    stim_loc = np.array([]) 
-    ideal_resp = np.array([]) 
-    gocue = np.array([]) #dat['gocue']: when the go cue sound was played. 
-    latency = np.array([]) 
-    response_time = np.array([]) 
+    stim_loc = np.array([])
+    ideal_resp = np.array([])
+    gocue = np.array([]) #dat['gocue']: when the go cue sound was played.
+    latency = np.array([])
+    response_time = np.array([])
     response_time_diff = np.array([])
-    mouse_resp = np.array([]) 
-    wheel_velocity = [] 
+    mouse_resp = np.array([])
+    wheel_velocity = []
     wheel_acceleration = []
-    pres_acc = np.array([]) 
-    feedback_onset = np.array([]) 
-    feedback_type = np.array([]) 
-    contrast_left = np.array([]) 
-    contrast_right = np.array([]) 
-    contrast_diff = np.array([]) 
-    pres_difficulty = np.array([]) 
+    pres_acc = np.array([])
+    feedback_onset = np.array([])
+    feedback_type = np.array([])
+    contrast_left = np.array([])
+    contrast_right = np.array([])
+    contrast_diff = np.array([])
+    pres_difficulty = np.array([])
 
     # Loop to fill all lists with data from Steinmetz dataset
     for dat in alldat:
@@ -80,7 +81,7 @@ def preprocess(alldat, verbose = False):
         mouse_resp = np.concatenate([mouse_resp, dat["response"].flatten()])
 
         wheel_velocity = wheel_velocity + dat["wheel"][0].tolist()
-        
+
         wheel_acc = np.zeros(dat["wheel"][0].shape)* np.nan
         wheel_acc[:, :-1] = np.diff(dat["wheel"][0])
 
@@ -96,9 +97,9 @@ def preprocess(alldat, verbose = False):
     pres_difficulty = 1 - np.abs(contrast_diff)
     pres_acc = (feedback_type > 0).astype(int)
 
-    my_dict = {'session': session, 
+    my_dict = {'session': session,
         'session_type': session_type,
-        'mouse_name': mouse_name, 
+        'mouse_name': mouse_name,
         'trial_number': trial_number,
         'go_trial': go_trial,
 
@@ -118,8 +119,8 @@ def preprocess(alldat, verbose = False):
 
         'response_time_diff': response_time_diff,
 
-        'past_acc': pastify(pres_acc), 
-        'past_latency': pastify(latency), 
+        'past_acc': pastify(pres_acc),
+        'past_latency': pastify(latency),
         'past_difficulty': pastify(pres_difficulty),
 
         'fut_go_trial': futurify(go_trial).astype(bool),
@@ -129,9 +130,9 @@ def preprocess(alldat, verbose = False):
     }
 
     dict_def = {
-        'session': "session number, indexed 0 - 38", 
+        'session': "session number, indexed 0 - 38",
         'session_type': "session type, train / test",
-        'mouse_name': "name of the mouse", 
+        'mouse_name': "name of the mouse",
         'trial_number': "trial number, indexed 0 to num_trials",
         'go_trial': "true if go_trial, false if no-go trial",
 
@@ -152,8 +153,8 @@ def preprocess(alldat, verbose = False):
         'response_time_diff': "first derivative of response time",
 
         'past_acc': "past accuracy, based on feedback",
-        'past_latency': "past latency, in ms", 
-        'past_difficulty': "past difficulty", 
+        'past_latency': "past latency, in ms",
+        'past_difficulty': "past difficulty",
 
         'fut_go_trial': "future go_trial, whether true or false",
         'fut_acc': "future accuracy, based on feedback",
@@ -163,7 +164,7 @@ def preprocess(alldat, verbose = False):
 
     df = pd.DataFrame(my_dict)
 
-    if verbose: 
+    if verbose:
         for col in df.columns:
             prcol = col + " "*100
             print("[%s]   \t%s\t%s"%(df[col].dtype, prcol[:20], dict_def[col]))
@@ -172,46 +173,44 @@ def preprocess(alldat, verbose = False):
 
 #plotting violinplot / scatter function, supports filtering
 def plots(df, y = "fut_latency", features = ["pres_acc", "fut_latency"], filter_: dict= None, hue = None, title = None):
-    if filter_ is not None: 
-        for key in filter_.keys(): 
+    if filter_ is not None:
+        for key in filter_.keys():
             df = df[df[key] == filter_[key]]
 
     for feature in features:
         if df[feature].dtype in [float, int]:
             if len(list(set(df[feature].dropna()))) < 10:
                 plt.figure()
-                sns.violinplot(df[feature], df[y])  
+                sns.violinplot(df[feature], df[y])
                 plt.xlabel(feature)
                 plt.ylabel(y)
-            else: 
+            else:
                 plt.figure()
                 sns.scatterplot(feature, y, data = df, hue=hue, alpha= 0.7)
                 plt.xlabel(feature)
                 plt.ylabel(y)
             plt.title(title)
 
-#plotting histogram function, supports filtering          
+#plotting histogram function, supports filtering
 def histograms(df, x, by: str, filter_:dict = None, title = None):
-    if filter_ is not None: 
-        for key in filter_.keys(): 
+    if filter_ is not None:
+        for key in filter_.keys():
             df = df[df[key] == filter_[key]]
-    
+
     plt.figure()
     for val in set(df[by]):
         plt.hist(x = x, data = df[df[by]==val], density = True, alpha = 0.7, label = "%s: %s"%(by, val), bins = 15)
         plt.xlabel(x)
-    
+
     plt.legend()
     plt.title(title)
 
 ######################################################################################################################
 
 
-def pickle_data():
-    alldat = load()
-    dfs = pd.concat([preprocess(alldat, i) for i in range(39)])
+def pickle_data(dfs):
     with open('processed_data.pickle', 'wb') as f:
-        pickle.dump( dfs, f)
+        pickle.dump(dfs, f)
         print('Processed Data Dumped')
 
 def load_processed_data():
@@ -220,21 +219,21 @@ def load_processed_data():
         print("Processed Data loaded")
         return dfs
 
-def main(): 
+def main():
     download()
     alldat = load()
     print("Data Loaded. Proceeding to Preprocessing...")
     session = 12
 
     dfs = preprocess(alldat, verbose=True)
-    
+
     print(dfs.shape)
     print(dfs.columns)
     print(dfs.head())
 
     train, test = train_test_split(dfs)
 
-    
+
 
     print(train.shape)
     print(set(train["session"]))
