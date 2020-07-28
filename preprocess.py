@@ -37,6 +37,12 @@ def pastify(arr):
     arr = np.array(arr)
     return np.concatenate([[np.nan], arr.flatten()[:-1]])
 
+
+def indexby(x, var = "gocue", version = "wheel_velocity", left = 1, right = 3):
+    index = int((np.round(x[var] + 500) / 10))
+    return x[version][index - left: index + right]
+
+
 def preprocess(alldat, verbose = False):
     s = 0
     test_sessions = [1, 4, 8, 12, 19, 22, 25, 30, 35]
@@ -163,12 +169,22 @@ def preprocess(alldat, verbose = False):
 
     df = pd.DataFrame(my_dict)
 
+    df["gocue_vel_trial"] = df.apply(lambda x: indexby(x, var = "gocue", version = "wheel_velocity"), axis= 1)
+    df["gocue_acc_trial"] = df.apply(lambda x: indexby(x, var = "gocue", version = "wheel_acceleration"), axis= 1)
+
+    df["stim_vel_trial"] = df.apply(lambda x: indexby(x, var = "zeros", version = "wheel_velocity"), axis= 1)
+    df["stim_acc_trial"] = df.apply(lambda x: indexby(x, var = "zeros", version = "wheel_acceleration"), axis= 1)
+
+    df["rt_vel_trial"] = df.apply(lambda x: indexby(x, var = "response_time", version = "wheel_velocity"), axis= 1)
+    df["rt_acc_trial"] = df.apply(lambda x: indexby(x, var = "response_time", version = "wheel_acceleration"), axis= 1)
+
     if verbose: 
         for col in df.columns:
             prcol = col + " "*100
             print("[%s]   \t%s\t%s"%(df[col].dtype, prcol[:20], dict_def[col]))
 
     return df
+
 
 #plotting violinplot / scatter function, supports filtering
 def plots(df, y = "fut_latency", features = ["pres_acc", "fut_latency"], filter_: dict= None, hue = None, title = None):
