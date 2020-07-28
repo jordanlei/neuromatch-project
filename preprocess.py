@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import scipy as sp
 import pandas as pd
 import pickle
-import seaborn as sns
 from data.get_data import *
 
 
@@ -37,6 +36,12 @@ def futurify(arr):
 def pastify(arr):
     arr = np.array(arr)
     return np.concatenate([[np.nan], arr.flatten()[:-1]])
+
+
+def indexby(x, var = "gocue", version = "wheel_velocity", left = 1, right = 3):
+    index = int((np.round(x[var] + 500) / 10))
+    return x[version][index - left: index + right]
+
 
 def preprocess(alldat, verbose = False):
     s = 0
@@ -117,7 +122,7 @@ def preprocess(alldat, verbose = False):
         'pres_difficulty': pres_difficulty,
         'pres_acc': pres_acc,
 
-        'response_time_diff': response_time_diff,
+        'delta_response_time': response_time_diff,
 
         'past_acc': pastify(pres_acc),
         'past_latency': pastify(latency),
@@ -150,7 +155,7 @@ def preprocess(alldat, verbose = False):
         'pres_difficulty': "1 - absolute value(contrast_diff)",
         'pres_acc': "present accuracy, based on feedback",
 
-        'response_time_diff': "first derivative of response time",
+        'delta_response_time': "first derivative of response time",
 
         'past_acc': "past accuracy, based on feedback",
         'past_latency': "past latency, in ms",
@@ -162,14 +167,26 @@ def preprocess(alldat, verbose = False):
         'fut_difficulty': "future difficulty",
     }
 
+
     df = pd.DataFrame(my_dict)
+    df["zeros"] = 0
+
+    df["gocue_vel_trial"] = df.apply(lambda x: indexby(x, var = "gocue", version = "wheel_velocity"), axis= 1)
+    df["gocue_acc_trial"] = df.apply(lambda x: indexby(x, var = "gocue", version = "wheel_acceleration"), axis= 1)
+
+    df["stim_vel_trial"] = df.apply(lambda x: indexby(x, var = "zeros", version = "wheel_velocity"), axis= 1)
+    df["stim_acc_trial"] = df.apply(lambda x: indexby(x, var = "zeros", version = "wheel_acceleration"), axis= 1)
+
+    df["rt_vel_trial"] = df.apply(lambda x: indexby(x, var = "response_time", version = "wheel_velocity"), axis= 1)
+    df["rt_acc_trial"] = df.apply(lambda x: indexby(x, var = "response_time", version = "wheel_acceleration"), axis= 1)
 
     if verbose:
-        for col in df.columns:
+        for col in my_dict.keys():
             prcol = col + " "*100
             print("[%s]   \t%s\t%s"%(df[col].dtype, prcol[:20], dict_def[col]))
 
     return df
+
 
 #plotting violinplot / scatter function, supports filtering
 def plots(df, y = "fut_latency", features = ["pres_acc", "fut_latency"], filter_: dict= None, hue = None, title = None):
