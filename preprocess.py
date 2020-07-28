@@ -166,8 +166,10 @@ def preprocess(alldat, verbose = False):
         'fut_latency': "future latency, in ms",
         'fut_difficulty': "future difficulty",
     }
+    
 
     df = pd.DataFrame(my_dict)
+    df["zeros"] = 0
 
     df["gocue_vel_trial"] = df.apply(lambda x: indexby(x, var = "gocue", version = "wheel_velocity"), axis= 1)
     df["gocue_acc_trial"] = df.apply(lambda x: indexby(x, var = "gocue", version = "wheel_acceleration"), axis= 1)
@@ -179,7 +181,7 @@ def preprocess(alldat, verbose = False):
     df["rt_acc_trial"] = df.apply(lambda x: indexby(x, var = "response_time", version = "wheel_acceleration"), axis= 1)
 
     if verbose: 
-        for col in df.columns:
+        for col in my_dict.keys():
             prcol = col + " "*100
             print("[%s]   \t%s\t%s"%(df[col].dtype, prcol[:20], dict_def[col]))
 
