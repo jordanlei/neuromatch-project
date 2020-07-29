@@ -57,6 +57,7 @@ def spike_preprocess(alldat):
     contrast_right_df = []
 
     mouse_name_df = []
+    neuron_num_df = []
 
 
     for i, dat in enumerate(alldat):
@@ -74,6 +75,7 @@ def spike_preprocess(alldat):
         contrast_right = np.repeat(dat["contrast_right"], num_neurons).tolist()
         
         trial = np.repeat(np.arange(trials), num_neurons).tolist()
+        neuron_num = np.arange(num_neurons).tolist() * trials
 
         session_df += [i]*(trials * num_neurons)
         trial_df += trial
@@ -86,6 +88,7 @@ def spike_preprocess(alldat):
         feedback_type_df += feedback_type
         contrast_left_df += contrast_left
         contrast_right_df += contrast_right
+        neuron_num_df += neuron_num
 
     mydict = {
     "session": session_df,
@@ -97,7 +100,8 @@ def spike_preprocess(alldat):
     "feedback_type": feedback_type_df,
     "contrast_left": contrast_left_df, 
     "contrast_right": contrast_right_df, 
-    "mouse_name": mouse_name_df
+    "mouse_name": mouse_name_df,
+    "neuron_num": neuron_num_df
     }
 
     df1 = pd.DataFrame(mydict)
@@ -123,6 +127,7 @@ def spike_preprocess(alldat):
         for group in groups:
             region_dict[group] = region
     df["area"] = df["region"].apply(lambda x: region_dict[x] if x in region_dict.keys() else "other")
+    df["code"] = df["session"].astype(str) + "_" + df["trial"].astype(str) + "_" + df["neuron_num"].astype(str)
     print("done")
 
     return df
