@@ -313,10 +313,22 @@ def histograms(df, x, by: str, filter_:dict = None, title = None):
     plt.title(title)
 
 
-def rasterplot(spike_df, readout_lo = 0, readout_hi = 50, time_lo = 0, time_hi = 250):
-    plt.figure(figsize=(5, 10))
-    plt.eventplot((spike_df.iloc[readout_lo:readout_hi, time_lo:time_hi] > 0).to_numpy() * np.arange(1, 251) - 1)
-    plt.xlim([0, 252])
+def rasterplot(df, readout_lo = 0, readout_hi = 50, time_lo = 0, time_hi = 250, center = None):
+    a = (df.iloc[readout_lo:readout_hi, time_lo:time_hi] > 0).to_numpy() * np.arange(1, 251) - 1
+    a[a < 0] = -1e15 #ignore -1
+    if center is not None:
+        c = (df.iloc[readout_lo:readout_hi][center] * 1000 / 10).astype(int)
+        a = a - c[:, None]
+        
+    plt.figure(figsize=(15, 15))
+    plt.eventplot(a)
+    
+    if center is not None: 
+        plt.xlim(-250, 250)
+        plt.axvline(linewidth=4, color='r', alpha = 0.3)
+    else: 
+        plt.xlim([0, 252])
+
 
 ######################################################################################################################
 
