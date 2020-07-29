@@ -127,8 +127,11 @@ def spike_preprocess(alldat):
         groups = brain_groups[i]
         for group in groups:
             region_dict[group] = region
+    df["difficulty"] = 1 - np.abs(df["contrast_left"] - df["contrast_right"])
+    df["go_trial"] = (df["contrast_left"] + df["contrast_right"]) > 0
     df["area"] = df["region"].apply(lambda x: region_dict[x] if x in region_dict.keys() else "other")
     df["code"] = df["session"].astype(str) + "_" + df["neuron_num"].astype(str)
+    df["mike"] = "mike"
     print("done")
 
     return df
@@ -329,6 +332,32 @@ def rasterplot(df, readout_lo = 0, readout_hi = 50, time_lo = 0, time_hi = 250, 
     else: 
         plt.xlim([0, 252])
 
+
+def event_triggered_average(df, i_lo = 0, i_hi = None, pad = 10, show = True, center = "response_time"):
+    if i_hi is not None:
+        spikes = df.iloc[i_lo:i_hi, :250].to_numpy()
+    else: 
+        spikes = df.iloc[:, :250].to_numpy()
+    centered = np.round(df[center][i_lo:i_hi].to_numpy() * 1000/10)
+    pad_spikes = np.zeros((spikes.shape[0], spikes.shape[1] + 2 * pad)) # pad spikes by pad on either side (n x (m+p*2))
+    pad_spikes[:, pad: -pad] = spikes #place spikes inside the padded zero-matrix [000..00 spikes 000..00]
+
+    _, rows = np.meshgrid(np.arange(pad_spikes.shape[0]), np.arange(pad_spikes.shape[1])) #meshgrid makes a (m+p*2) x n 
+    rows = rows - pad #subtract the padding so that 0 index falls on the 0 index of the spikes
+    
+    restrict = ((rows >= (centered - pad)) * (rows <= (centered + pad)))
+    print(rows.T[restrict.T].reshape(spikes.shape[0], -1))
+    all_center = pad_spikes[restrict.T].reshape(spikes.shape[0], -1) #index pad spikes by the restricted array surrounding centerpoint
+    eta = np.mean(all_center, axis= 0)
+    
+    print(len(eta))
+    if show:
+        plt.figure()
+        plt.plot(eta)
+        plt.axvline(x = pad, linewidth=4, color='r', alpha = 0.3)
+        plt.show()
+    
+    return eta
 
 ######################################################################################################################
 
