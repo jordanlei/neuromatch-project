@@ -311,6 +311,12 @@ def histograms(df, x, by: str, filter_:dict = None, title = None):
     plt.legend()
     plt.title(title)
 
+
+def rasterplot(spike_df, readout_lo = 0, readout_hi = 50, time_lo = 0, time_hi = 250):
+    plt.figure(figsize=(5, 10))
+    plt.eventplot((spike_df.iloc[readout_lo:readout_hi, time_lo:time_hi] > 0).to_numpy() * np.arange(1, 251) - 1)
+    plt.xlim([0, 252])
+
 ######################################################################################################################
 
 
