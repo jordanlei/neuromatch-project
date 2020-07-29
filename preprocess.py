@@ -127,7 +127,7 @@ def spike_preprocess(alldat):
         for group in groups:
             region_dict[group] = region
     df["area"] = df["region"].apply(lambda x: region_dict[x] if x in region_dict.keys() else "other")
-    df["code"] = df["session"].astype(str) + "_" + df["trial"].astype(str) + "_" + df["neuron_num"].astype(str)
+    df["code"] = df["session"].astype(str) + "_" + df["neuron_num"].astype(str)
     print("done")
 
     return df
