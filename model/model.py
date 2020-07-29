@@ -1,4 +1,5 @@
 import numpy as np
+import pingouin as pg
 import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -22,6 +23,22 @@ def dummy_conf(features = ["conf", "prev_conf",  "perf"], samples = 1000):
     df = pd.DataFrame(arr, columns = features)
 
     return df
+
+def binary_test(df, var1, var2):
+    """Mann-Whitney U test on variable 2 separated by variable 1
+
+    var1: string, binary variable
+    var2: string, continuous variable
+    """
+    print(f'Variable of interst: {var1}')
+    print(f'Possible values: {np.unique(df[var1])}')
+    for dif in np.unique(train['pres_difficulty']):
+        print(f'Difficulty: {dif}')
+        bin_list = []
+        for var1_sub in np.unique(df[var1]):
+            bin_list.append(df[(df[var1] == var1_sub) & (df['pres_difficulty'] == dif)][var2].to_numpy())
+        res = pg.mwu(bin_list[0], bin_list[1])
+        print(res)
 
 
 def plots(df, var = "conf"):
