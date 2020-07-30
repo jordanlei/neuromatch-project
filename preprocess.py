@@ -333,19 +333,36 @@ def rasterplot(df, readout_lo = 0, readout_hi = 50, time_lo = 0, time_hi = 250, 
         plt.xlim([0, 252])
 
 
-def event_triggered_average(df, i_lo = 0, i_hi = None, pad = 10, show = True, center = "response_time"):
+def event_triggered_average(df, filter_ = None, i_lo = 0, i_hi = None, pad = 10, show = True, center = "response_time", remove_zeros = True):
+    if filter_ is not None:
+        for key in filter_.keys():
+            df = df[df[key] == filter_[key]]
+            
+    df = df[df[center] < 2.5]
+    
     if i_hi is not None:
         spikes = df.iloc[i_lo:i_hi, :250].to_numpy()
     else: 
         spikes = df.iloc[:, :250].to_numpy()
+    
     centered = np.round(df[center][i_lo:i_hi].to_numpy() * 1000/10)
+
+    if remove_zeros: 
+        nonzero = np.sum(spikes, axis = 1) > 0
+        spikes = spikes[nonzero]
+        centered = centered[nonzero]
+
     pad_spikes = np.zeros((spikes.shape[0], spikes.shape[1] + 2 * pad)) # pad spikes by pad on either side (n x (m+p*2))
     pad_spikes[:, pad: -pad] = spikes #place spikes inside the padded zero-matrix [000..00 spikes 000..00]
 
     _, rows = np.meshgrid(np.arange(pad_spikes.shape[0]), np.arange(pad_spikes.shape[1])) #meshgrid makes a (m+p*2) x n 
+    
     rows = rows - pad #subtract the padding so that 0 index falls on the 0 index of the spikes
     
     restrict = ((rows >= (centered - pad)) * (rows <= (centered + pad)))
+    print(centered)
+    print([restrict.T])
+    
     print(rows.T[restrict.T].reshape(spikes.shape[0], -1))
     all_center = pad_spikes[restrict.T].reshape(spikes.shape[0], -1) #index pad spikes by the restricted array surrounding centerpoint
     eta = np.mean(all_center, axis= 0)
@@ -358,6 +375,7 @@ def event_triggered_average(df, i_lo = 0, i_hi = None, pad = 10, show = True, ce
         plt.show()
     
     return eta
+
 
 ######################################################################################################################
 
