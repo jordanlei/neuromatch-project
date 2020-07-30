@@ -322,14 +322,14 @@ def rasterplot(df, readout_lo = 0, readout_hi = 50, time_lo = 0, time_hi = 250, 
     if center is not None:
         c = (df.iloc[readout_lo:readout_hi][center] * 1000 / 10).astype(int)
         a = a - c[:, None]
-        
+
     plt.figure(figsize=(15, 15))
     plt.eventplot(a)
-    
-    if center is not None: 
+
+    if center is not None:
         plt.xlim(-250, 250)
         plt.axvline(linewidth=4, color='r', alpha = 0.3)
-    else: 
+    else:
         plt.xlim([0, 252])
 
 
@@ -380,13 +380,13 @@ def event_triggered_average(df, filter_ = None, i_lo = 0, i_hi = None, pad = 10,
 ######################################################################################################################
 
 
-def pickle_data(dfs):
-    with open('processed_data.pickle', 'wb') as f:
+def pickle_data(dfs, fname='processed_data.pickle'):
+    with open(fname, 'wb') as f:
         pickle.dump(dfs, f)
         print('Processed Data Dumped')
 
-def load_processed_data():
-    with open('processed_data.pickle', 'rb') as f:
+def load_processed_data(fname='processed_data.pickle'):
+    with open(fname, 'rb') as f:
         dfs = pickle.load(f)
         print("Processed Data loaded")
         return dfs
