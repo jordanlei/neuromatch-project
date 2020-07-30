@@ -32,7 +32,7 @@ def binary_test(df, var1, var2):
     """
     print(f'Variable of interst: {var1}')
     print(f'Possible values: {np.unique(df[var1])}')
-    for dif in np.unique(train['pres_difficulty']):
+    for dif in np.unique(df['pres_difficulty']):
         print(f'Difficulty: {dif}')
         bin_list = []
         for var1_sub in np.unique(df[var1]):
