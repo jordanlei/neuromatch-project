@@ -413,5 +413,120 @@ def main():
     print(test.shape)
     print(set(test["session"]))
 
+def center_spikes(df,center='feedback_time',center_ind=None):
+    
+    if center_ind is not None:
+        max_val = center_ind
+    else:
+        max_val = np.max(df.center.values)
+        
+    min_val = np.min(df.center.values)
+    max_shift = max_val-min_val
+
+    vals = df.iloc[:, :250].values
+    center_vals = df['center'].values
+    sh = vals.shape
+    centered_array = np.empty([sh[0],int(sh[1] + max_shift)])
+    centered_array[:] = np.nan
+
+    for n in np.arange(sh[0]):
+        start = int(center_vals[n]-(max_val-max_shift))
+        end = int(start + sh[1])
+        centered_array[n,start:end] = vals[n]
+        
+    return centered_array, max_val
+    
+
+def centered_plots(df,plot:str='sta',center:str = '',by:str = '',fig:str = '', sub:str = '',filter_:dict = None,sort = 'spike_count',rem_zero_spks=True):
+    
+    
+    if (by is not '') & (plot == 'histogram') :
+        print('"by" not supported with histogram. Setting "by" to None.')
+        by = ''
+    
+    if filter_ is not None: 
+        for key in filter_.keys(): 
+            if isinstance(filter_[key], int):
+                df = df[df[key] == filter_[key]]
+            else:
+                df = df[df[key].isin(filter_[key])]
+                
+    if sort is not None:
+        if sort == 'spike_count':
+            df[sort] = np.sum((df.iloc[:, :250] > 0).to_numpy(),axis=1)
+            if rem_zero_spks:
+                df = df[df['spike_count'] != 0]
+        
+        df = df.sort_values(sort,ascending=False)
+    
+    if fig is not '':
+        fig_list = sorted(set(df[fig]))
+    else:
+        fig_list = ['']
+        
+    if by is not '':
+        by_list = sorted(set(df[by]))
+    else:
+        by_list = ['']
+        
+    # Pull out all unique subfigure distinctions 
+    if sub is not '':
+        sub_list = sorted(set(df[sub]))
+    else:
+        sub_list = ['']
+    
+    sub_dims = np.ceil(np.sqrt(len(sub_list)))
+    
+    if center is not '':
+        # Calculate bin of the center
+        df['center'] = np.floor(df[center]*1000/10)
+    else:
+        df['center'] = 0
+    for fig_i,fig_val in enumerate(fig_list):
+        plt.figure(fig_i,figsize=(20, 20))
+        if fig_val is not '':
+            df_fig = df[df[fig] == fig_val]
+        else:
+            df_fig = df
+        for sub_i,sub_val in enumerate(sub_list):
+            plt.subplot(np.ceil(sub_dims), np.ceil(sub_dims), sub_i+1)
+            if sub_val is not '':
+                df_sub = df_fig[df_fig[sub] == sub_val]
+            else:
+                df_sub = df_fig
+            
+            max_center_val = np.max(df.center.values) + 50
+            
+            for by_i,by_val in enumerate(by_list):
+                if by_val is not '':
+                    df_by = df_sub[df_sub[by] == by_val]
+                else:
+                    df_by = df_sub
+
+                centered_array, max_val = center_spikes(df_by,center,center_ind = max_center_val)
+
+                if center == 'feedback_time':
+                    color = 'blue'
+                else: 
+                    color = 'green'
+
+                if plot == 'heatplot':
+                    plt.imshow(centered_array[:], cmap='hot',extent=(-max_val,centered_array.shape[1]-max_val,0,centered_array.shape[0]))
+                    plt.axvline(x=0,color=color)
+                elif plot == 'sta':
+                    plt.plot(np.nanmean(centered_array,axis=0),label = "%s: %s"%(by, by_val))
+                    plt.axvline(x=max_val,color=color)
+                    plt.xlim([0,centered_array.shape[1]])
+#                   plt.xlim([max_center_val-50,max_center_val+50])
+                    plt.legend()
+                else: 
+                    print('Plot type not supported. Use "heatplot" or "sta"')
+
+            plt.title(sub + ' : ' + str(sub_val))
+            
+        plt.tight_layout()
+        plt.suptitle(str(fig) + ' : ' + str(fig_val),fontweight='bold', fontsize=16)
+        plt.subplots_adjust(top=0.90)
+
 if __name__ == "__main__":
     main()
