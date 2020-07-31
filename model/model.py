@@ -32,13 +32,17 @@ def binary_test(df, var1, var2):
     """
     print(f'Variable of interst: {var1}')
     print(f'Possible values: {np.unique(df[var1])}')
+    final_df = []
     for dif in np.unique(df['pres_difficulty']):
         print(f'Difficulty: {dif}')
         bin_list = []
         for var1_sub in np.unique(df[var1]):
             bin_list.append(df[(df[var1] == var1_sub) & (df['pres_difficulty'] == dif)][var2].to_numpy())
         res = pg.mwu(bin_list[0], bin_list[1])
+        final_df.append(res)
         print(res)
+    return pd.concat(final_df)
+
 
 
 def plots(df, var = "conf"):
