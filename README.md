@@ -1,7 +1,11 @@
 # Neuromatch Project, 2020
 ## Team Radnitz-Moniz Conjecture (alt: Ephys)
+Members: Amber Hopkins, Garrett Flynn, Allen Zhang, Mariana Nunes, Jordan Lei 
 
 ![](TeamEphys.png)
+
+# Presentation
+You can [view our presentation here](final_presentation.pdf)
 
 # Project Introduction
 The time course of action execution is influenced by past performance and confidence about the contents of perception. We used the Steinmetz dataset to explore the relationship between confidence and task performance within a trial and between trials. Confidence towards a 2AFC task decision may be estimated by observable behavioral variables, such as the latency of response and parameters associated with the action itself (wheel velocity and acceleration). The performance and difficulty of the trials was also taken into consideration. 
