@@ -1,5 +1,5 @@
 # Neuromatch Project, 2020
-## Team Radnitz-Moniz Conjecture (alt: Ephys)
+## Team Radnitz-Moniz Conjecture (alt: e.Phys)
 Contributors: Amber Hopkins, Garrett Flynn, Allen Zhang, Mariana Nunes, Jordan Lei 
 
 ![](TeamEphys.png)
