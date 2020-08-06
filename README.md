@@ -1,4 +1,4 @@
-# Neuromatch Project, 2020
+# Neuromatch Project 2020
 ## Team Radnitz-Moniz Conjecture (alt: e.Phys)
 Contributors: Amber Hopkins, Garrett Flynn, Allen Zhang, Mariana Nunes, Jordan Lei 
 
@@ -14,7 +14,7 @@ The time course of action execution is influenced by past performance and confid
 We found a statistically significant relationship (Mann-Whitney U test, p< 0.01) between present accuracy and future latency, indicating that current performance could be linked with confidence updating. However, we did not find that this relationship could be used effectively to predict future confidence updating with linear models.  We also looked at the activity of brain regions associated with reward and prediction error (anterior cingulate cortex and nucleus accumbens) over the time course of trials with both positive and negative performance.
 
 # Future Work
-Our current results do not offer conclusive evidence that there is a trial-by-trial effect of confidence updating. However, there’s a possibility that it operates on a longer timescale. Given more time, there are many other relationships and hypotheses that we would explore towards the same end that may yield more insights into the concept of confidence updating and its neurophysiological or behavioral manifestations. 
+Our current results do not offer conclusive evidence that there is a trial-by-trial effect of confidence updating. However, there’s a possibility that it operates on a longer timescale. Given more time, there are many other relationships and hypotheses that we would explore towards the same end that may yield more insights into the concept of confidence updating and its neurophysiological or behavioral manifestations. These include modeling techniques (Reinforcement Learning frameworks, Kalman Filtering, Drift-Diffusion models) and analyzing different brain regions (orbitofrontal cortex, fronto-medial cortices).
 
 # References
 * Ganea, D. A., Bexter, A., Guenther, M., Garderes, P. M., Kampa, B. M., & Haiss, F. (2018). Pupillary dilations of mice performing a vibrotactile discrimination task reflect task engagement and response confidence. bioRxiv, 444919. doi:10.1101/444919
