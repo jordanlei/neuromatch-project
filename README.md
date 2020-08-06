@@ -1,5 +1,5 @@
 # Neuromatch Project, 2020
-Team Radnitz-Moniz Conjecture
+## Team Radnitz-Moniz Conjecture (alt: Ephys)
 
 ![](TeamEphys.png)
 
@@ -11,3 +11,8 @@ We found a statistically significant relationship (Mann-Whitney U test, p< 0.01)
 
 # Future Work
 Our current results do not offer conclusive evidence that there is a trial-by-trial effect of confidence updating. However, there’s a possibility that it operates on a longer timescale. Given more time, there are many other relationships and hypotheses that we would explore towards the same end that may yield more insights into the concept of confidence updating and its neurophysiological or behavioral manifestations. 
+
+# References
+* Ganea, D. A., Bexter, A., Guenther, M., Garderes, P. M., Kampa, B. M., & Haiss, F. (2018). Pupillary dilations of mice performing a vibrotactile discrimination task reflect task engagement and response confidence. bioRxiv, 444919. doi:10.1101/444919
+* Lak, A., Okun, M., Moss, M. M., Gurnani, H., Farrell, K., Wells, M. J., . . . Carandini, M. (2020). Dopaminergic and Prefrontal Basis of Learning from Sensory Confidence and Reward Value. Neuron, 105(4), 700-711.e706. doi:https://doi.org/10.1016/j.neuron.2019.11.018
+* Steinmetz, N. A., Zatka-Haas, P., Carandini, M., & Harris, K. D. (2019). Distributed coding of choice, action and engagement across the mouse brain. Nature, 576(7786), 266-273. doi:10.1038/s41586-019-1787-x
